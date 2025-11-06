@@ -9,7 +9,11 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-const API_KEY = "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";
+const API_KEY = process.env.HUGGINGFACE_API_KEY || "";
+if (!API_KEY) {
+  console.warn("⚠️ No hay API_KEY configurada. Añádela en Render como HUGGINGFACE_API_KEY");
+}
+
 
 // 🔹 Endpoint principal IA
 app.post("/chat", async (req, res) => {
