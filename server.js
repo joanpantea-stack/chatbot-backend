@@ -9,7 +9,7 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-const API_KEY = "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";
+const API_KEY = "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";
 
 // 🔹 Endpoint principal IA
 app.post("/chat", async (req, res) => {
