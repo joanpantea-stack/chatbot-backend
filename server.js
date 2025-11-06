@@ -1,9 +1,8 @@
 // ===================================================
-// 🔹 Servidor Backend IA - ChatBot Panteagroup
+// 🔹 Servidor Backend IA - ChatBot Panteagroup (Gratis)
 // ===================================================
-// - Usa modelo gratuito Mistral-7B-Instruct (Hugging Face)
-// - Sin token ni autenticación
-// - Compatible con Render + IONOS + móvil
+// - Usa modelo Mistral 7B Instruct en Hugging Face
+// - Requiere solo un token gratuito con permisos READ
 // ===================================================
 
 import express from "express";
@@ -25,17 +24,16 @@ app.post("/chat", async (req, res) => {
 
   try {
     const response = await fetch(
-  "https://router.huggingface.co/hf-inference/models/mistralai/Mistral-7B-Instruct-v0.2",
-  {
-    method: "POST",
-    headers: {
-      "Authorization": `Bearer ${process.env.HUGGINGFACE_API_KEY}`,
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify({ inputs: message })
-  }
-);
-
+      "https://router.huggingface.co/hf-inference/models/mistralai/Mistral-7B-Instruct-v0.2",
+      {
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer ${process.env.HUGGINGFACE_API_KEY}`,
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ inputs: message })
+      }
+    );
 
     if (!response.ok) {
       console.error("❌ Error Hugging Face:", response.status, response.statusText);
@@ -46,7 +44,7 @@ app.post("/chat", async (req, res) => {
 
     const data = await response.json();
 
-    // Intentar distintas estructuras de respuesta
+    // Manejar distintos formatos posibles de respuesta
     const reply =
       data?.[0]?.generated_text ||
       data?.generated_text ||
@@ -61,14 +59,14 @@ app.post("/chat", async (req, res) => {
 });
 
 // ===================================================
-// 🔹 Endpoint raíz (comprobación rápida)
+// 🔹 Endpoint raíz
 // ===================================================
 app.get("/", (req, res) => {
-  res.send("✅ Servidor IA de Panteagroup operativo con Mistral 7B gratuito.");
+  res.send("✅ Servidor IA de Panteagroup operativo con Mistral 7B (token gratuito).");
 });
 
 // ===================================================
-// 🔹 Puerto de Render
+// 🔹 Puerto
 // ===================================================
 const PORT = process.env.PORT || 10000;
 app.listen(PORT, () => {
