@@ -1,9 +1,9 @@
 // ===================================================
 // 🔹 Servidor Backend IA - ChatBot Panteagroup
 // ===================================================
-// - Intermedia entre el frontend (IONOS) y Hugging Face
-// - Evita bloqueos CORS
-// - Usa token seguro guardado en Render
+// - Versión libre y funcional con modelo público GPT-2
+// - No requiere token ni permisos especiales
+// - Ideal para entorno gratuito en Render + IONOS
 // ===================================================
 
 import express from "express";
@@ -15,16 +15,7 @@ app.use(cors());
 app.use(express.json());
 
 // ===================================================
-// 🔹 Cargar API Key de Hugging Face desde variables de entorno
-// ===================================================
-const API_KEY = process.env.HUGGINGFACE_API_KEY || "";
-if (!API_KEY) {
-  console.warn("⚠️ No se encontró la variable HUGGINGFACE_API_KEY en Render.");
-  console.warn("Ve a 'Environment → Environment Variables' y añade tu token de Hugging Face.");
-}
-
-// ===================================================
-// 🔹 Endpoint principal de la IA
+// 🔹 Endpoint principal de la IA (usando GPT-2 público)
 // ===================================================
 app.post("/chat", async (req, res) => {
   const { message } = req.body;
@@ -35,11 +26,10 @@ app.post("/chat", async (req, res) => {
 
   try {
     const response = await fetch(
-      "https://api-inference.huggingface.co/models/tiiuae/falcon-7b-instruct",
+      "https://router.huggingface.co/hf-inference/models/gpt2",
       {
         method: "POST",
         headers: {
-          "Authorization": `Bearer ${API_KEY}`,
           "Content-Type": "application/json",
         },
         body: JSON.stringify({ inputs: message }),
@@ -48,21 +38,20 @@ app.post("/chat", async (req, res) => {
 
     if (!response.ok) {
       console.error("❌ Error Hugging Face:", response.status, response.statusText);
-      return res.json({ reply: "Error conectando con la IA (Hugging Face no respondió correctamente)." });
+      return res.json({ reply: "Error conectando con la IA (GPT-2 no respondió correctamente)." });
     }
 
     const data = await response.json();
 
-    // El modelo puede devolver distintos formatos de JSON
+    // GPT-2 normalmente devuelve un array con generated_text
     const reply =
       data?.[0]?.generated_text ||
       data?.generated_text ||
-      data?.outputs?.[0]?.content ||
       "Lo siento, no tengo información sobre eso.";
 
     res.json({ reply });
   } catch (error) {
-    console.error("❌ Error general al conectar con la IA:", error);
+    console.error("❌ Error general al conectar con GPT-2:", error);
     res.json({ reply: "Error conectando con la IA." });
   }
 });
@@ -71,7 +60,7 @@ app.post("/chat", async (req, res) => {
 // 🔹 Endpoint raíz para comprobar el servidor
 // ===================================================
 app.get("/", (req, res) => {
-  res.send("✅ Servidor IA de Panteagroup operativo.");
+  res.send("✅ Servidor IA de Panteagroup operativo con GPT-2.");
 });
 
 // ===================================================
