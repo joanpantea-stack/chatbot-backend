@@ -1,8 +1,9 @@
 // ===================================================
 // 🔹 Servidor Backend IA - ChatBot Panteagroup
 // ===================================================
-// - Usa OpenAI GPT-3.5-Turbo (ChatGPT oficial)
-// - Lee la clave de entorno OPENAI_API_KEY (Render)
+// - Usa modelo gratuito Mistral-7B-Instruct (Hugging Face)
+// - Sin token ni autenticación
+// - Compatible con Render + IONOS + móvil
 // ===================================================
 
 import express from "express";
@@ -14,7 +15,7 @@ app.use(cors());
 app.use(express.json());
 
 // ===================================================
-// 🔹 Endpoint principal de la IA (OpenAI ChatGPT)
+// 🔹 Endpoint principal de la IA (Mistral gratuito)
 // ===================================================
 app.post("/chat", async (req, res) => {
   const { message } = req.body;
@@ -23,49 +24,45 @@ app.post("/chat", async (req, res) => {
   }
 
   try {
-    const response = await fetch("https://api.openai.com/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        "Authorization": `Bearer ${process.env.OPENAI_API_KEY}`,
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({
-        model: "gpt-3.5-turbo",
-        messages: [
-          {
-            role: "system",
-            content:
-              "Eres un asistente técnico de Panteagroup. Responde de forma clara, amable y profesional."
-          },
-          { role: "user", content: message }
-        ],
-        temperature: 0.7,
-        max_tokens: 400
-      })
-    });
+    const response = await fetch(
+      "https://router.huggingface.co/hf-inference/models/mistralai/Mistral-7B-Instruct-v0.2",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ inputs: message })
+      }
+    );
 
     if (!response.ok) {
-      console.error("❌ Error OpenAI:", response.status, response.statusText);
-      return res.json({ reply: "Error conectando con la IA (OpenAI no respondió correctamente)." });
+      console.error("❌ Error Hugging Face:", response.status, response.statusText);
+      return res.json({
+        reply: "Error conectando con la IA (Mistral no respondió correctamente)."
+      });
     }
 
     const data = await response.json();
+
+    // Intentar distintas estructuras de respuesta
     const reply =
-      data?.choices?.[0]?.message?.content?.trim() ||
+      data?.[0]?.generated_text ||
+      data?.generated_text ||
+      data?.outputs?.[0]?.content ||
       "Lo siento, no tengo información sobre eso.";
 
     res.json({ reply });
   } catch (error) {
-    console.error("❌ Error general al conectar con OpenAI:", error);
-    res.json({ reply: "Error conectando con la IA (OpenAI)." });
+    console.error("❌ Error general al conectar con Mistral:", error);
+    res.json({ reply: "Error conectando con la IA." });
   }
 });
 
 // ===================================================
-// 🔹 Endpoint raíz para comprobar el servidor
+// 🔹 Endpoint raíz (comprobación rápida)
 // ===================================================
 app.get("/", (req, res) => {
-  res.send("✅ Servidor IA de Panteagroup operativo con ChatGPT-3.5-Turbo.");
+  res.send("✅ Servidor IA de Panteagroup operativo con Mistral 7B gratuito.");
 });
 
 // ===================================================
