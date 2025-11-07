@@ -1,8 +1,8 @@
 // ===================================================
-// 🔹 Servidor Backend IA - ChatBot Panteagroup (Gratis)
+// 🔹 Servidor Backend IA - ChatBot PanteaGroup
 // ===================================================
-// - Usa modelo Mistral 7B Instruct en Hugging Face
-// - Requiere solo un token gratuito con permisos READ
+// Envía mensajes al Space gratuito de Hugging Face
+// (por ejemplo: https://tuusuario-pantea-mistral.hf.space)
 // ===================================================
 
 import express from "express";
@@ -14,7 +14,7 @@ app.use(cors());
 app.use(express.json());
 
 // ===================================================
-// 🔹 Endpoint principal de la IA (Mistral gratuito)
+// 🔹 Endpoint principal del chatbot
 // ===================================================
 app.post("/chat", async (req, res) => {
   const { message } = req.body;
@@ -23,38 +23,29 @@ app.post("/chat", async (req, res) => {
   }
 
   try {
-    const response = await fetch(
-      "https://router.huggingface.co/hf-inference/models/mistralai/Mistral-7B-Instruct-v0.2",
-      {
-        method: "POST",
-        headers: {
-          "Authorization": `Bearer ${process.env.HUGGINGFACE_API_KEY}`,
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({ inputs: message })
-      }
-    );
+    // 🔸 Cambia esta URL por la de tu propio Space:
+    const spaceURL = "https://joanpantea-pantea-mistral.hf.space//run/predict";
+
+    const response = await fetch(spaceURL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ data: [message] })
+    });
 
     if (!response.ok) {
-      console.error("❌ Error Hugging Face:", response.status, response.statusText);
-      return res.json({
-        reply: "Error conectando con la IA (Mistral no respondió correctamente)."
-      });
+      console.error("❌ Error llamando al Space:", response.status, response.statusText);
+      return res.json({ reply: "Error conectando con la IA (Space no respondió correctamente)." });
     }
 
     const data = await response.json();
 
-    // Manejar distintos formatos posibles de respuesta
-    const reply =
-      data?.[0]?.generated_text ||
-      data?.generated_text ||
-      data?.outputs?.[0]?.content ||
-      "Lo siento, no tengo información sobre eso.";
+    // Hugging Face Spaces devuelven { "data": [ "texto" ] }
+    const reply = data?.data?.[0] || "Lo siento, no tengo información sobre eso.";
 
     res.json({ reply });
   } catch (error) {
-    console.error("❌ Error general al conectar con Mistral:", error);
-    res.json({ reply: "Error conectando con la IA." });
+    console.error("❌ Error general al conectar con Space:", error);
+    res.json({ reply: "Error conectando con la IA (Space)." });
   }
 });
 
@@ -62,13 +53,13 @@ app.post("/chat", async (req, res) => {
 // 🔹 Endpoint raíz
 // ===================================================
 app.get("/", (req, res) => {
-  res.send("✅ Servidor IA de Panteagroup operativo con Mistral 7B (token gratuito).");
+  res.send("✅ Backend de PanteaGroup conectado al Space IA.");
 });
 
 // ===================================================
-// 🔹 Puerto
+// 🔹 Puerto Render
 // ===================================================
 const PORT = process.env.PORT || 10000;
 app.listen(PORT, () => {
-  console.log(`🚀 Servidor IA activo en puerto ${PORT}`);
+  console.log(`🚀 Servidor backend activo en puerto ${PORT}`);
 });
