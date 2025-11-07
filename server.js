@@ -1,9 +1,6 @@
 // ===================================================
 // 🔹 Servidor Backend IA - ChatBot PanteaGroup
 // ===================================================
-// Envía mensajes al Space gratuito de Hugging Face
-// (por ejemplo: https://tuusuario-pantea-mistral.hf.space)
-// ===================================================
 
 import express from "express";
 import cors from "cors";
@@ -18,48 +15,59 @@ app.use(express.json());
 // ===================================================
 app.post("/chat", async (req, res) => {
   const { message } = req.body;
-  if (!message) {
-    return res.status(400).json({ reply: "Mensaje vacío" });
-  }
+  if (!message) return res.status(400).json({ reply: "Mensaje vacío" });
 
   try {
-    // 🔸 Cambia esta URL por la de tu propio Space:
-    const spaceURL = "https://joanpantea-pantea-mistral.hf.space//run/predict";
+    const hfToken = process.env.HF_TOKEN; // token con permisos WRITE
+    const model = "mistralai/Mistral-7B-Instruct-v0.2";
 
-    const response = await fetch(spaceURL, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ data: [message] })
-    });
-
-    if (!response.ok) {
-      console.error("❌ Error llamando al Space:", response.status, response.statusText);
-      return res.json({ reply: "Error conectando con la IA (Space no respondió correctamente)." });
-    }
+    const response = await fetch(
+      `https://router.huggingface.co/hf-inference/models/${model}`,
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${hfToken}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ inputs: message }),
+      }
+    );
 
     const data = await response.json();
 
-    // Hugging Face Spaces devuelven { "data": [ "texto" ] }
-    const reply = data?.data?.[0] || "Lo siento, no tengo información sobre eso.";
+    // Debug: log en consola (opcional)
+    console.log("🔹 Respuesta HF:", JSON.stringify(data, null, 2));
 
-    res.json({ reply });
-  } catch (error) {
-    console.error("❌ Error general al conectar con Space:", error);
-    res.json({ reply: "Error conectando con la IA (Space)." });
+    if (!response.ok) {
+      console.error("❌ Error Hugging Face:", response.status, response.statusText);
+      return res.json({
+        reply: "Error conectando con la IA (Hugging Face no respondió correctamente).",
+      });
+    }
+
+    // Extraer texto generado
+    const texto =
+      data[0]?.generated_text ||
+      data.generated_text ||
+      data.outputs?.[0]?.content ||
+      "Lo siento, no tengo información sobre eso.";
+
+    res.json({ reply: texto.trim() });
+  } catch (err) {
+    console.error("❌ Error general al conectar con Hugging Face:", err);
+    res.json({ reply: "Error general al conectar con la IA." });
   }
 });
 
 // ===================================================
-// 🔹 Endpoint raíz
+// 🔹 Endpoint raíz (para pruebas)
 // ===================================================
 app.get("/", (req, res) => {
-  res.send("✅ Backend de PanteaGroup conectado al Space IA.");
+  res.send("✅ Backend PanteaGroup conectado a Hugging Face Router.");
 });
 
 // ===================================================
 // 🔹 Puerto Render
 // ===================================================
 const PORT = process.env.PORT || 10000;
-app.listen(PORT, () => {
-  console.log(`🚀 Servidor backend activo en puerto ${PORT}`);
-});
+app.listen(PORT, () => console.log(`🚀 Servidor activo en puerto ${PORT}`));
