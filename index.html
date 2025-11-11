@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ChatBot Panteagroup</title>
+  <link rel="stylesheet" href="style.css" />
+  <script src="https://cdn.jsdelivr.net/npm/emailjs-com@3/dist/email.min.js"></script>
+  <script>
+    (function(){
+      emailjs.init("service_wcdz549");
+    })();
+  </script>
+</head>
+<body>
+
+  <!-- 🔹 LOGIN -->
+  <div id="auth-screen" class="auth-screen">
+    <div class="auth-box">
+      <h2>Bienvenido al ChatBot de <span class="highlight">Panteagroup</span></h2>
+      <p>Introduce tu código de usuario y palabra de control:</p>
+
+      <input type="text" id="user-id" placeholder="Código de usuario" />
+
+      <div class="password-wrapper">
+        <input type="password" id="user-pass" placeholder="Palabra de control" />
+        <button id="toggle-pass" type="button">👁️</button>
+      </div>
+
+      <button id="login-btn">Entrar</button>
+      <p id="auth-msg" class="auth-msg"></p>
+    </div>
+  </div>
+
+  <!-- 🔹 MENÚ PRINCIPAL -->
+  <div id="menu-screen" class="hidden menu-screen">
+    <div class="menu-box">
+      <h2>Selecciona el tipo de ayuda</h2>
+      <button class="menu-btn" onclick="selectMode('servicio')">🛠 Servicio Técnico</button>
+      <button class="menu-btn" onclick="selectMode('empresa')">🏢 Sobre la Empresa</button>
+      <button class="menu-btn" onclick="selectMode('ventas')">💼 Ventas</button>
+      <button class="menu-btn back-btn" onclick="logout()">🚪 Cerrar sesión</button>
+    </div>
+  </div>
+
+  <!-- 🔹 CHAT -->
+  <div id="chat-container" class="hidden chat-container">
+    <div class="chat-header">
+      <button id="back-to-menu" class="back-to-menu">⬅️ Menú</button>
+      <h3 id="chat-title">Chat</h3>
+    </div>
+
+    <div id="chat-box" class="chat-box"></div>
+
+    <div id="quick-options" class="quick-options"></div>
+
+    <div class="input-area">
+      <input type="text" id="user-input" placeholder="Escribe tu mensaje..." autocomplete="off" />
+      <button id="send-btn">Enviar</button>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
