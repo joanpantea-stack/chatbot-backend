@@ -21,7 +21,7 @@ app.post("/chat", async (req, res) => {
     const openRouterKey = process.env.OPENROUTER_API_KEY || "sk-or-v1-xxxxxxxxxxxx"; // ⚠️ Reemplaza si no usas variables de entorno
 
     // Puedes elegir el modelo que prefieras:
-    const model = "mistralai/mistral-7b-instruct"; // rápido y gratuito
+    const model = "mistralai/mistral-tiny";   // modelo gratuito
     // Otros disponibles: "meta-llama/llama-3-8b-instruct", "google/gemma-2-9b-it"
 
     const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
