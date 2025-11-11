@@ -25,7 +25,9 @@ function buscarRespuestaLocal(message, modo) {
 // 🔹 Endpoint principal
 app.post("/chat", async (req, res) => {
   const { message, mode } = req.body;
-  if (!message || !mode) return res.status(400).json({ reply: "Mensaje vacío o modo no definido" });
+  if (!message || !mode || typeof mode !== "string") 
+  return res.status(400).json({ reply: "Mensaje vacío o modo no definido" });
+
 
   // 🔹 1️⃣ Buscar en base local
   const respuestaLocal = buscarRespuestaLocal(message, mode);
