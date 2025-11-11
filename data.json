@@ -1,0 +1,44 @@
+{
+  "servicio": [
+    {
+      "preguntas": ["no enciende", "no arranca"],
+      "respuesta": "Verifica que el equipo esté conectado correctamente a la corriente y el interruptor en ON.",
+      "imagen": "https://via.placeholder.com/300x150?text=Comprobacion",
+      "video": ""
+    },
+    {
+      "preguntas": ["pantalla azul", "error windows"],
+      "respuesta": "Una pantalla azul puede deberse a un fallo de hardware o drivers. Reinicia el equipo y revisa actualizaciones.",
+      "imagen": "",
+      "video": "https://www.youtube.com/watch?v=dQw4w9WgXcQ"
+    }
+  ],
+  "empresa": [
+    {
+      "preguntas": ["direccion", "dónde están"],
+      "respuesta": "Nuestra sede principal se encuentra en Madrid, Calle Ejemplo 123.",
+      "imagen": "",
+      "video": ""
+    },
+    {
+      "preguntas": ["contacto", "teléfono"],
+      "respuesta": "Puedes llamarnos al 900 123 456 o escribirnos a info@panteagroup.com.",
+      "imagen": "",
+      "video": ""
+    }
+  ],
+  "ventas": [
+    {
+      "preguntas": ["presupuesto", "precio"],
+      "respuesta": "Para solicitar un presupuesto, por favor indica el producto o servicio que necesitas.",
+      "imagen": "",
+      "video": ""
+    },
+    {
+      "preguntas": ["disponibilidad", "stock"],
+      "respuesta": "Puedes consultar disponibilidad escribiendo el nombre del producto en este chat.",
+      "imagen": "",
+      "video": ""
+    }
+  ]
+}
