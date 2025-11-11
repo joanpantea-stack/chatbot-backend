@@ -1,5 +1,5 @@
 // ===================================================
-// 🔹 Servidor Backend IA - ChatBot PanteaGroup
+// 🔹 ChatBot PanteaGroup - Conexión IA mediante OpenRouter.ai
 // ===================================================
 
 import express from "express";
@@ -11,59 +11,62 @@ app.use(cors());
 app.use(express.json());
 
 // ===================================================
-// 🔹 Endpoint principal del chatbot
+// 🔹 Endpoint principal
 // ===================================================
 app.post("/chat", async (req, res) => {
   const { message } = req.body;
   if (!message) return res.status(400).json({ reply: "Mensaje vacío" });
 
   try {
-    const hfToken = process.env.HF_TOKEN; // token con permisos WRITE
-    const model = "mistralai/Mistral-7B-Instruct-v0.2";
+    const openRouterKey = process.env.OPENROUTER_API_KEY || "sk-or-v1-xxxxxxxxxxxx"; // ⚠️ Reemplaza si no usas variables de entorno
 
-    const response = await fetch(
-      `https://router.huggingface.co/hf-inference/models/${model}`,
-      {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${hfToken}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ inputs: message }),
-      }
-    );
+    // Puedes elegir el modelo que prefieras:
+    const model = "mistralai/mistral-7b-instruct"; // rápido y gratuito
+    // Otros disponibles: "meta-llama/llama-3-8b-instruct", "google/gemma-2-9b-it"
+
+    const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${openRouterKey}`,
+      },
+      body: JSON.stringify({
+        model,
+        messages: [
+          {
+            role: "system",
+            content: "Eres un asistente técnico de PanteaGroup. Responde siempre en español de manera clara y profesional.",
+          },
+          {
+            role: "user",
+            content: message,
+          },
+        ],
+      }),
+    });
+
+    if (!response.ok) {
+      console.error("❌ Error OpenRouter:", response.status, response.statusText);
+      return res.json({ reply: "Error conectando con la IA (OpenRouter no respondió correctamente)." });
+    }
 
     const data = await response.json();
 
-    // Debug: log en consola (opcional)
-    console.log("🔹 Respuesta HF:", JSON.stringify(data, null, 2));
-
-    if (!response.ok) {
-      console.error("❌ Error Hugging Face:", response.status, response.statusText);
-      return res.json({
-        reply: "Error conectando con la IA (Hugging Face no respondió correctamente).",
-      });
-    }
-
-    // Extraer texto generado
     const texto =
-      data[0]?.generated_text ||
-      data.generated_text ||
-      data.outputs?.[0]?.content ||
-      "Lo siento, no tengo información sobre eso.";
+      data?.choices?.[0]?.message?.content || "Lo siento, no tengo información sobre eso.";
 
     res.json({ reply: texto.trim() });
-  } catch (err) {
-    console.error("❌ Error general al conectar con Hugging Face:", err);
-    res.json({ reply: "Error general al conectar con la IA." });
+  } catch (error) {
+    console.error("❌ Error general al conectar con OpenRouter:", error);
+    res.json({ reply: "Error general al conectar con la IA (OpenRouter)." });
   }
 });
 
 // ===================================================
-// 🔹 Endpoint raíz (para pruebas)
+// 🔹 Endpoint raíz
 // ===================================================
 app.get("/", (req, res) => {
-  res.send("✅ Backend PanteaGroup conectado a Hugging Face Router.");
+  res.send("✅ Backend de PanteaGroup conectado a OpenRouter.ai");
 });
 
 // ===================================================
