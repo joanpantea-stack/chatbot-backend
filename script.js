@@ -68,4 +68,40 @@ function logout() {
 
 // 🔹 Mostrar mensaje en chat
 function addMessage(sender, text) {
-  const msg = doc
+  const msg = document.createElement("div");
+  msg.classList.add("message", sender);
+  msg.innerHTML = text;
+  chatBox.appendChild(msg);
+  chatBox.scrollTop = chatBox.scrollHeight;
+}
+
+// 🔹 Cargar opciones rápidas
+function loadQuickOptions(mode) {
+  const quickOptions = document.getElementById("quick-options");
+  quickOptions.innerHTML = "";
+  const items = data[mode] || [];
+
+  items.forEach(item => {
+    const btn = document.createElement("button");
+    btn.classList.add("option-btn");
+    btn.textContent = item.preguntas[0];
+    btn.onclick = () => sendMessage(item.preguntas[0], false, mode);
+    quickOptions.appendChild(btn);
+  });
+
+  // Botón IA
+  const aiBtn = document.createElement("button");
+  aiBtn.classList.add("option-btn");
+  aiBtn.textContent = "No encuentro mi problema (IA)";
+  aiBtn.onclick = async () => {
+    if (!currentMode) {
+      alert("❗ Debes seleccionar primero un modo de ayuda.");
+      return;
+    }
+    const text = prompt("Describe tu problema:");
+    if (text) sendMessage(text, true, currentMode);
+  };
+  quickOptions.appendChild(aiBtn);
+}
+
+// 🔹 Ll
